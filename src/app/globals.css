@@ -42,7 +42,9 @@
 
 @font-face {
     font-family: 'Baskerville';
-    src: local('Baskerville'), url('/fonts/Baskerville.ttc');
+    src: local('Baskerville'),
+         url('/fonts/Baskerville-Regular.ttf') format('truetype'),
+         url('/fonts/Baskerville.ttc');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
@@ -50,7 +52,10 @@
 
 @font-face {
     font-family: 'Baskerville';
-    src: local('Baskerville Bold'), local('Baskerville'), url('/fonts/Baskerville.ttc');
+    src: local('Baskerville Bold'),
+         local('Baskerville'),
+         url('/fonts/Baskerville-Bold.ttf') format('truetype'),
+         url('/fonts/Baskerville.ttc');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
@@ -973,6 +978,12 @@ h6 {
 #slide-3 {
     background: radial-gradient(ellipse at center, #F8F3EE 0%, #F3EEE5 100%) !important;
     background-attachment: fixed !important;
+}
+
+#slide-3 .slide-title,
+#slide-3 .collection-title,
+#slide-3 .slide-title-line {
+    font-family: 'Baskerville', var(--font-baskerville), 'Libre Baskerville', serif !important;
 }
 
 #slide-4 {

@@ -40,27 +40,6 @@
     font-display: swap;
 }
 
-@font-face {
-    font-family: 'Baskerville';
-    src: local('Baskerville'),
-         url('/fonts/Baskerville-Regular.ttf') format('truetype'),
-         url('/fonts/Baskerville.ttc');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Baskerville';
-    src: local('Baskerville Bold'),
-         local('Baskerville'),
-         url('/fonts/Baskerville-Bold.ttf') format('truetype'),
-         url('/fonts/Baskerville.ttc');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-}
-
 /* ============================================================
    PINTAARA BRAND FONTS
    ============================================================ */
@@ -85,11 +64,10 @@
     --font-logo: "Bodoni Moda", serif;
     --font-display: "Cormorant Garamond", serif;
     --font-body: "Avenir Next", "Avenir", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --font-baskerville-family: 'Baskerville', var(--font-baskerville), 'Libre Baskerville', serif;
 
     --font-brand: var(--font-logo);
     --font-sans: var(--font-body);
-    --font-serif: var(--font-baskerville-family);
+    --font-serif: var(--font-display);
 }
 
 /* BASE STYLING */
@@ -453,11 +431,11 @@ h6 {
     animation: heroBgZoomIn 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* --- Content Slide Typography (PPT Specs: Body Text 50, Sub Text 30, Linked Text 20) --- */
+/* --- Content Slide Typography --- */
 .section-label,
 .slide-subtitle {
     font-family: var(--font-body) !important;
-    font-size: clamp(18px, 1.56vw, 30px) !important;
+    font-size: clamp(14px, 0.9vw, 18px) !important;
     font-weight: 400 !important;
     line-height: 1 !important;
     letter-spacing: -0.02em !important;
@@ -466,25 +444,24 @@ h6 {
     opacity: 0.85;
 }
 
-/* Base Hero Title (Body Text: 50 with Baskerville) */
+/* Base Hero Title */
 .hero-title,
-.slide-title,
-.slide-title-line {
-    font-family: var(--font-baskerville-family) !important;
-    font-size: clamp(32px, 2.6vw, 50px) !important;
+.slide-title {
+    font-family: var(--font-sans) !important;
+    font-size: clamp(30px, 2.2vw, 52px) !important;
     font-weight: 400 !important;
     font-style: normal !important;
     line-height: 1.25 !important;
     letter-spacing: 0 !important;
     text-transform: uppercase !important;
     white-space: pre-line !important;
-    max-width: 540px !important;
+    max-width: 520px !important;
     margin-bottom: 1.5rem;
 }
 
 .slide-2-title {
-    font-family: var(--font-baskerville-family) !important;
-    font-size: clamp(32px, 2.6vw, 50px) !important;
+    font-family: var(--font-sans) !important;
+    font-size: clamp(30px, 2.2vw, 52px) !important;
     font-weight: 400 !important;
     font-style: normal !important;
     line-height: 1.24 !important;
@@ -497,8 +474,8 @@ h6 {
 }
 
 .design-log-title {
-    font-family: var(--font-baskerville-family) !important;
-    font-size: clamp(32px, 2.6vw, 50px) !important;
+    font-family: var(--font-sans) !important;
+    font-size: clamp(30px, 2.2vw, 52px) !important;
     font-weight: 400 !important;
     line-height: 1.25 !important;
     letter-spacing: 0 !important;
@@ -506,8 +483,8 @@ h6 {
 }
 
 .philosophy-title {
-    font-family: var(--font-baskerville-family) !important;
-    font-size: clamp(32px, 2.6vw, 50px) !important;
+    font-family: var(--font-sans) !important;
+    font-size: clamp(30px, 2.2vw, 52px) !important;
     font-weight: 400 !important;
     line-height: 1.35 !important;
     letter-spacing: 0 !important;
@@ -515,8 +492,8 @@ h6 {
 }
 
 .story-title {
-    font-family: var(--font-baskerville-family) !important;
-    font-size: clamp(32px, 2.6vw, 50px) !important;
+    font-family: var(--font-sans) !important;
+    font-size: clamp(30px, 2.2vw, 52px) !important;
     font-weight: 400 !important;
     line-height: 1.25 !important;
     letter-spacing: 0 !important;
@@ -524,29 +501,24 @@ h6 {
 }
 
 .collection-title {
-    font-family: var(--font-baskerville-family) !important;
-    font-size: clamp(32px, 2.6vw, 50px) !important;
+    font-family: var(--font-sans) !important;
+    font-size: clamp(30px, 2.2vw, 52px) !important;
     font-weight: 400 !important;
     line-height: 1.28 !important;
     letter-spacing: 0 !important;
     max-width: 500px !important;
 }
 
-/* Master slide typography rule: Slide titles use Baskerville, labels and body use Avenir Next */
+/* Master slide typography rule: All slide text is normal weight (400) and same Avenir Next */
 .slide .slide-title,
+.slide .slide-subtitle,
+.slide .section-label,
 .slide .hero-title,
 .slide .slide-2-title,
 .slide .collection-title,
 .slide .design-log-title,
 .slide .philosophy-title,
 .slide .story-title,
-.slide-title-line,
-.slide .slide-title-line {
-    font-family: var(--font-baskerville-family) !important;
-}
-
-.slide .slide-subtitle,
-.slide .section-label,
 .slide .slide-desc,
 .slide .hero-description,
 .slide .action-btn,
@@ -609,7 +581,7 @@ h6 {
 .slide .action-btn,
 .slide .cta-link {
     font-family: var(--font-sans) !important;
-    font-size: clamp(14px, 1.05vw, 20px) !important;
+    font-size: clamp(14px, 1vw, 16px) !important;
     font-weight: 400 !important;
     letter-spacing: 0.08em !important;
     text-transform: uppercase !important;
@@ -634,7 +606,7 @@ h6 {
 .section-label,
 .slide-subtitle {
     font-family: var(--font-sans) !important;
-    font-size: clamp(18px, 1.56vw, 30px) !important;
+    font-size: 16px !important;
     font-weight: 400 !important;
     letter-spacing: 0.08em !important;
     text-transform: uppercase !important;
@@ -676,7 +648,7 @@ h6 {
 .slide.theme-dark .slide-subtitle {
     color: #FFFFFF !important;
     font-family: var(--font-sans) !important;
-    font-size: clamp(18px, 1.56vw, 30px) !important;
+    font-size: 16px !important;
     font-weight: 400 !important;
     letter-spacing: 0.08em !important;
 }
@@ -693,8 +665,8 @@ h6 {
 .slide.theme-dark .design-log-title,
 .slide.theme-dark .story-title {
     color: #FFFFFF !important;
-    font-family: var(--font-baskerville-family) !important;
-    font-size: clamp(32px, 2.6vw, 50px) !important;
+    font-family: var(--font-sans) !important;
+    font-size: clamp(28px, 3vw, 46px) !important;
     font-weight: 400 !important;
     line-height: 1.2 !important;
     letter-spacing: 0.02em !important;
@@ -709,7 +681,7 @@ h6 {
 
 .slide.theme-dark .action-btn {
     color: #FFFFFF !important;
-    font-size: clamp(14px, 1.05vw, 20px) !important;
+    font-size: clamp(14px, 1vw, 16px) !important;
     font-weight: 400 !important;
     letter-spacing: 0.08em !important;
     border-bottom: none !important;
@@ -723,7 +695,7 @@ h6 {
 .slide.theme-cream .slide-subtitle {
     font-family: var(--font-sans) !important;
     color: #3B3733 !important;
-    font-size: clamp(18px, 1.56vw, 30px) !important;
+    font-size: 16px !important;
     font-weight: 400 !important;
     letter-spacing: 0.08em !important;
     opacity: 1 !important;
@@ -732,9 +704,9 @@ h6 {
 
 .slide.theme-cream .collection-title,
 .slide.theme-cream .slide-title {
-    font-family: var(--font-baskerville-family) !important;
+    font-family: var(--font-sans) !important;
     color: #3B3733 !important;
-    font-size: clamp(32px, 2.6vw, 50px) !important;
+    font-size: clamp(28px, 3vw, 46px) !important;
     font-weight: 400 !important;
     line-height: 1.2 !important;
     letter-spacing: 0.02em !important;
@@ -766,7 +738,7 @@ h6 {
 .slide.theme-cream .action-btn {
     font-family: var(--font-sans) !important;
     color: #3B3733 !important;
-    font-size: clamp(14px, 1.05vw, 20px) !important;
+    font-size: clamp(14px, 1vw, 16px) !important;
     font-weight: 400 !important;
     letter-spacing: 0.08em !important;
     text-transform: uppercase !important;
@@ -789,7 +761,7 @@ h6 {
 .slide.theme-olive .slide-subtitle {
     font-family: var(--font-sans) !important;
     color: #3B3733 !important;
-    font-size: clamp(18px, 1.56vw, 30px) !important;
+    font-size: 16px !important;
     font-weight: 400 !important;
     letter-spacing: 0.08em !important;
     opacity: 1 !important;
@@ -798,9 +770,9 @@ h6 {
 
 .slide.theme-olive .philosophy-title,
 .slide.theme-olive .slide-title {
-    font-family: var(--font-baskerville-family) !important;
+    font-family: var(--font-sans) !important;
     color: #3B3733 !important;
-    font-size: clamp(32px, 2.6vw, 50px) !important;
+    font-size: clamp(28px, 3vw, 46px) !important;
     font-weight: 400 !important;
     line-height: 1.2 !important;
     letter-spacing: 0.02em !important;
@@ -838,7 +810,7 @@ h6 {
 .slide.theme-olive .action-btn {
     font-family: var(--font-sans) !important;
     color: #3B3733 !important;
-    font-size: clamp(14px, 1.05vw, 20px) !important;
+    font-size: clamp(14px, 1vw, 16px) !important;
     font-weight: 400 !important;
     letter-spacing: 0.08em !important;
     text-transform: uppercase !important;
@@ -917,7 +889,7 @@ h6 {
 #slide-6 .slide-subtitle {
     display: block !important;
     font-family: var(--font-sans) !important;
-    font-size: clamp(18px, 1.56vw, 30px) !important;
+    font-size: 16px !important;
     font-weight: 400 !important;
     letter-spacing: 0.08em !important;
     color: #F8F3EE !important;
@@ -927,8 +899,8 @@ h6 {
 }
 
 #slide-6 .slide-title {
-    font-family: var(--font-baskerville-family) !important;
-    font-size: clamp(32px, 2.6vw, 50px) !important;
+    font-family: var(--font-sans) !important;
+    font-size: clamp(28px, 3vw, 46px) !important;
     font-weight: 400 !important;
     line-height: 1.2 !important;
     letter-spacing: 0.02em !important;
@@ -978,12 +950,6 @@ h6 {
 #slide-3 {
     background: radial-gradient(ellipse at center, #F8F3EE 0%, #F3EEE5 100%) !important;
     background-attachment: fixed !important;
-}
-
-#slide-3 .slide-title,
-#slide-3 .collection-title,
-#slide-3 .slide-title-line {
-    font-family: 'Baskerville', var(--font-baskerville), 'Libre Baskerville', serif !important;
 }
 
 #slide-4 {

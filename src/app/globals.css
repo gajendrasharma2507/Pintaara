@@ -463,7 +463,8 @@ h6 {
 
 /* Base Hero Title */
 .hero-title,
-.slide-title {
+.slide-title,
+.slide-title-line {
     font-family: var(--font-baskerville-family) !important;
     font-size: clamp(30px, 2.2vw, 52px) !important;
     font-weight: 400 !important;
@@ -533,7 +534,9 @@ h6 {
 .slide .collection-title,
 .slide .design-log-title,
 .slide .philosophy-title,
-.slide .story-title {
+.slide .story-title,
+.slide-title-line,
+.slide .slide-title-line {
     font-family: var(--font-baskerville-family) !important;
 }
 

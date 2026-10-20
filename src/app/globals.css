@@ -41,22 +41,25 @@
 }
 
 @font-face {
-    font-family: 'Baskerville';
-    src: local('Baskerville'),
-         url('/fonts/Baskerville-Regular.ttf') format('truetype'),
-         url('/fonts/Baskerville.ttc');
-    font-weight: 400;
+    font-family: 'Baskerville-Bold';
+    src: url('/fonts/Baskerville-Bold.ttf') format('truetype');
+    font-weight: 400 900;
     font-style: normal;
     font-display: swap;
 }
 
 @font-face {
     font-family: 'Baskerville';
-    src: local('Baskerville Bold'),
-         local('Baskerville'),
-         url('/fonts/Baskerville-Bold.ttf') format('truetype'),
-         url('/fonts/Baskerville.ttc');
+    src: url('/fonts/Baskerville-Bold.ttf') format('truetype');
     font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Baskerville';
+    src: url('/fonts/Baskerville-Regular.ttf') format('truetype');
+    font-weight: 400;
     font-style: normal;
     font-display: swap;
 }
@@ -85,7 +88,7 @@
     --font-logo: "Bodoni Moda", serif;
     --font-display: "Cormorant Garamond", serif;
     --font-body: "Avenir Next", "Avenir", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --font-baskerville-family: 'Baskerville', var(--font-baskerville), 'Libre Baskerville', serif;
+    --font-baskerville-family: 'Baskerville-Bold', 'Baskerville', var(--font-baskerville), 'Libre Baskerville', serif;
 
     --font-brand: var(--font-logo);
     --font-sans: var(--font-body);
@@ -472,7 +475,7 @@ h6 {
 .slide-title-line {
     font-family: var(--font-baskerville-family) !important;
     font-size: clamp(30px, 2.2vw, 52px) !important;
-    font-weight: 400 !important;
+    font-weight: 700 !important;
     font-style: normal !important;
     line-height: 1.25 !important;
     letter-spacing: 0 !important;
@@ -485,7 +488,7 @@ h6 {
 .slide-2-title {
     font-family: var(--font-baskerville-family) !important;
     font-size: clamp(30px, 2.2vw, 52px) !important;
-    font-weight: 400 !important;
+    font-weight: 700 !important;
     font-style: normal !important;
     line-height: 1.24 !important;
     letter-spacing: 0.01em !important;
@@ -499,7 +502,7 @@ h6 {
 .design-log-title {
     font-family: var(--font-baskerville-family) !important;
     font-size: clamp(30px, 2.2vw, 52px) !important;
-    font-weight: 400 !important;
+    font-weight: 700 !important;
     line-height: 1.25 !important;
     letter-spacing: 0 !important;
     max-width: 450px !important;
@@ -508,7 +511,7 @@ h6 {
 .philosophy-title {
     font-family: var(--font-baskerville-family) !important;
     font-size: clamp(30px, 2.2vw, 52px) !important;
-    font-weight: 400 !important;
+    font-weight: 700 !important;
     line-height: 1.35 !important;
     letter-spacing: 0 !important;
     max-width: 520px !important;
@@ -517,7 +520,7 @@ h6 {
 .story-title {
     font-family: var(--font-baskerville-family) !important;
     font-size: clamp(30px, 2.2vw, 52px) !important;
-    font-weight: 400 !important;
+    font-weight: 700 !important;
     line-height: 1.25 !important;
     letter-spacing: 0 !important;
     max-width: 520px !important;
@@ -526,13 +529,13 @@ h6 {
 .collection-title {
     font-family: var(--font-baskerville-family) !important;
     font-size: clamp(30px, 2.2vw, 52px) !important;
-    font-weight: 400 !important;
+    font-weight: 700 !important;
     line-height: 1.28 !important;
     letter-spacing: 0 !important;
     max-width: 500px !important;
 }
 
-/* Master slide typography rule: Slide titles use Baskerville, labels and body use Avenir Next */
+/* Master slide typography rule: Slide titles use Baskerville Bold, labels and body use Avenir Next */
 .slide .slide-title,
 .slide .hero-title,
 .slide .slide-2-title,
@@ -543,6 +546,7 @@ h6 {
 .slide-title-line,
 .slide .slide-title-line {
     font-family: var(--font-baskerville-family) !important;
+    font-weight: 700 !important;
 }
 
 .slide .slide-subtitle,
@@ -695,7 +699,7 @@ h6 {
     color: #FFFFFF !important;
     font-family: var(--font-baskerville-family) !important;
     font-size: clamp(28px, 3vw, 46px) !important;
-    font-weight: 400 !important;
+    font-weight: 700 !important;
     line-height: 1.2 !important;
     letter-spacing: 0.02em !important;
 }
@@ -735,7 +739,7 @@ h6 {
     font-family: var(--font-baskerville-family) !important;
     color: #3B3733 !important;
     font-size: clamp(28px, 3vw, 46px) !important;
-    font-weight: 400 !important;
+    font-weight: 700 !important;
     line-height: 1.2 !important;
     letter-spacing: 0.02em !important;
     text-transform: uppercase !important;
@@ -801,7 +805,7 @@ h6 {
     font-family: var(--font-baskerville-family) !important;
     color: #3B3733 !important;
     font-size: clamp(28px, 3vw, 46px) !important;
-    font-weight: 400 !important;
+    font-weight: 700 !important;
     line-height: 1.2 !important;
     letter-spacing: 0.02em !important;
     text-transform: uppercase !important;
@@ -929,7 +933,7 @@ h6 {
 #slide-6 .slide-title {
     font-family: var(--font-baskerville-family) !important;
     font-size: clamp(28px, 3vw, 46px) !important;
-    font-weight: 400 !important;
+    font-weight: 700 !important;
     line-height: 1.2 !important;
     letter-spacing: 0.02em !important;
     color: #F8F3EE !important;
@@ -3141,7 +3145,7 @@ h6 {
     max-width: none !important;
 }
 
-.collection-title {
+.collection-intro-left .collection-title {
     font-family: var(--font-serif) !important;
     font-size: clamp(26px, 2.3vw, 36px) !important;
     font-weight: 400 !important;

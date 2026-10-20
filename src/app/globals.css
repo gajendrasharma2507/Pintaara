@@ -40,6 +40,27 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: 'Baskerville';
+    src: local('Baskerville'),
+         url('/fonts/Baskerville-Regular.ttf') format('truetype'),
+         url('/fonts/Baskerville.ttc');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Baskerville';
+    src: local('Baskerville Bold'),
+         local('Baskerville'),
+         url('/fonts/Baskerville-Bold.ttf') format('truetype'),
+         url('/fonts/Baskerville.ttc');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
 /* ============================================================
    PINTAARA BRAND FONTS
    ============================================================ */
@@ -64,6 +85,7 @@
     --font-logo: "Bodoni Moda", serif;
     --font-display: "Cormorant Garamond", serif;
     --font-body: "Avenir Next", "Avenir", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-baskerville-family: 'Baskerville', var(--font-baskerville), 'Libre Baskerville', serif;
 
     --font-brand: var(--font-logo);
     --font-sans: var(--font-body);
@@ -446,8 +468,9 @@ h6 {
 
 /* Base Hero Title */
 .hero-title,
-.slide-title {
-    font-family: var(--font-sans) !important;
+.slide-title,
+.slide-title-line {
+    font-family: var(--font-baskerville-family) !important;
     font-size: clamp(30px, 2.2vw, 52px) !important;
     font-weight: 400 !important;
     font-style: normal !important;
@@ -460,7 +483,7 @@ h6 {
 }
 
 .slide-2-title {
-    font-family: var(--font-sans) !important;
+    font-family: var(--font-baskerville-family) !important;
     font-size: clamp(30px, 2.2vw, 52px) !important;
     font-weight: 400 !important;
     font-style: normal !important;
@@ -474,7 +497,7 @@ h6 {
 }
 
 .design-log-title {
-    font-family: var(--font-sans) !important;
+    font-family: var(--font-baskerville-family) !important;
     font-size: clamp(30px, 2.2vw, 52px) !important;
     font-weight: 400 !important;
     line-height: 1.25 !important;
@@ -483,7 +506,7 @@ h6 {
 }
 
 .philosophy-title {
-    font-family: var(--font-sans) !important;
+    font-family: var(--font-baskerville-family) !important;
     font-size: clamp(30px, 2.2vw, 52px) !important;
     font-weight: 400 !important;
     line-height: 1.35 !important;
@@ -492,7 +515,7 @@ h6 {
 }
 
 .story-title {
-    font-family: var(--font-sans) !important;
+    font-family: var(--font-baskerville-family) !important;
     font-size: clamp(30px, 2.2vw, 52px) !important;
     font-weight: 400 !important;
     line-height: 1.25 !important;
@@ -501,7 +524,7 @@ h6 {
 }
 
 .collection-title {
-    font-family: var(--font-sans) !important;
+    font-family: var(--font-baskerville-family) !important;
     font-size: clamp(30px, 2.2vw, 52px) !important;
     font-weight: 400 !important;
     line-height: 1.28 !important;
@@ -509,16 +532,21 @@ h6 {
     max-width: 500px !important;
 }
 
-/* Master slide typography rule: All slide text is normal weight (400) and same Avenir Next */
+/* Master slide typography rule: Slide titles use Baskerville, labels and body use Avenir Next */
 .slide .slide-title,
-.slide .slide-subtitle,
-.slide .section-label,
 .slide .hero-title,
 .slide .slide-2-title,
 .slide .collection-title,
 .slide .design-log-title,
 .slide .philosophy-title,
 .slide .story-title,
+.slide-title-line,
+.slide .slide-title-line {
+    font-family: var(--font-baskerville-family) !important;
+}
+
+.slide .slide-subtitle,
+.slide .section-label,
 .slide .slide-desc,
 .slide .hero-description,
 .slide .action-btn,
@@ -665,7 +693,7 @@ h6 {
 .slide.theme-dark .design-log-title,
 .slide.theme-dark .story-title {
     color: #FFFFFF !important;
-    font-family: var(--font-sans) !important;
+    font-family: var(--font-baskerville-family) !important;
     font-size: clamp(28px, 3vw, 46px) !important;
     font-weight: 400 !important;
     line-height: 1.2 !important;
@@ -704,7 +732,7 @@ h6 {
 
 .slide.theme-cream .collection-title,
 .slide.theme-cream .slide-title {
-    font-family: var(--font-sans) !important;
+    font-family: var(--font-baskerville-family) !important;
     color: #3B3733 !important;
     font-size: clamp(28px, 3vw, 46px) !important;
     font-weight: 400 !important;
@@ -770,7 +798,7 @@ h6 {
 
 .slide.theme-olive .philosophy-title,
 .slide.theme-olive .slide-title {
-    font-family: var(--font-sans) !important;
+    font-family: var(--font-baskerville-family) !important;
     color: #3B3733 !important;
     font-size: clamp(28px, 3vw, 46px) !important;
     font-weight: 400 !important;
@@ -899,7 +927,7 @@ h6 {
 }
 
 #slide-6 .slide-title {
-    font-family: var(--font-sans) !important;
+    font-family: var(--font-baskerville-family) !important;
     font-size: clamp(28px, 3vw, 46px) !important;
     font-weight: 400 !important;
     line-height: 1.2 !important;

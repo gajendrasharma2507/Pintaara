@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import "./admin.css";
@@ -191,6 +191,7 @@ export default function RootAdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const profileMenuRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Admin Authentication State
@@ -255,6 +256,41 @@ export default function RootAdminLayout({ children }) {
     } else {
       setAuthLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    const handleOverlayInteractions = (event) => {
+      if (event.key === "Escape") {
+        setProfileOpen(false);
+        if (window.innerWidth <= 640) {
+          setSidebarOpen(false);
+        }
+        return;
+      }
+
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleOverlayInteractions);
+    document.addEventListener("pointerdown", handleOverlayInteractions);
+    return () => {
+      document.removeEventListener("keydown", handleOverlayInteractions);
+      document.removeEventListener("pointerdown", handleOverlayInteractions);
+    };
+  }, []);
+
+  useEffect(() => {
+    const syncMobileSidebar = () => {
+      if (window.innerWidth <= 640) {
+        setSidebarOpen(false);
+      }
+    };
+
+    syncMobileSidebar();
+    window.addEventListener("resize", syncMobileSidebar);
+    return () => window.removeEventListener("resize", syncMobileSidebar);
   }, []);
 
   const handleAdminLogin = async (e) => {
@@ -618,10 +654,11 @@ export default function RootAdminLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        <div className="admin-shell" style={{ display: "flex", flexDirection: "row", minHeight: "100vh" }}>
+        <div className="admin-shell admin-app-shell" style={{ display: "flex", flexDirection: "row", minHeight: "100vh" }}>
           
           {/* SIDEBAR */}
           <aside
+            className={`admin-sidebar ${sidebarOpen ? "is-open" : "is-closed"}`}
             style={{
               width: sidebarOpen ? "256px" : "80px",
               minWidth: sidebarOpen ? "256px" : "80px",
@@ -640,10 +677,11 @@ export default function RootAdminLayout({ children }) {
             <div
               style={{
                 height: "70px",
-                padding: sidebarOpen ? "0 20px" : "0 16px",
+                padding: sidebarOpen ? "0 20px" : "0 8px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
+                gap: sidebarOpen ? "10px" : "4px",
                 borderBottom: "1px solid var(--admin-border)",
               }}
             >
@@ -655,6 +693,8 @@ export default function RootAdminLayout({ children }) {
                   gap: "10px",
                   textDecoration: "none",
                   overflow: "hidden",
+                  flexShrink: 0,
+                  minWidth: sidebarOpen ? 0 : "36px",
                 }}
               >
                 {sidebarOpen ? (
@@ -695,29 +735,29 @@ export default function RootAdminLayout({ children }) {
               </Link>
 
               {/* Sidebar Collapse Toggle Button */}
-              {sidebarOpen && (
-                <button
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
-                  title="Toggle Sidebar"
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    color: "var(--admin-text-secondary)",
-                    padding: "6px",
-                    borderRadius: "6px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <line x1="9" y1="3" x2="9" y2="21" />
-                    <path d="m14 9-3 3 3 3" />
-                  </svg>
-                </button>
-              )}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                title={sidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
+                aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "var(--admin-text-secondary)",
+                  padding: sidebarOpen ? "6px" : "4px",
+                  borderRadius: "6px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <line x1="9" y1="3" x2="9" y2="21" />
+                  <path d={sidebarOpen ? "m14 9-3 3 3 3" : "m10 9 3 3-3 3"} />
+                </svg>
+              </button>
             </div>
 
             {/* Navigation Menus */}
@@ -837,11 +877,21 @@ export default function RootAdminLayout({ children }) {
             )}
           </aside>
 
+          {sidebarOpen && (
+            <button
+              type="button"
+              className="admin-mobile-nav-backdrop"
+              aria-label="Close navigation menu"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+
           {/* MAIN VIEWPORT */}
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+          <div className="admin-main-viewport" style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
             
             {/* TOPBAR HEADER */}
             <header
+              className="admin-topbar"
               style={{
                 height: "70px",
                 background: "var(--admin-surface)",
@@ -855,8 +905,22 @@ export default function RootAdminLayout({ children }) {
                 zIndex: 40,
               }}
             >
+              <button
+                type="button"
+                className="admin-mobile-nav-toggle"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                aria-label={sidebarOpen ? "Close navigation menu" : "Open navigation menu"}
+                aria-expanded={sidebarOpen}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="4" y1="6" x2="20" y2="6" />
+                  <line x1="4" y1="12" x2="20" y2="12" />
+                  <line x1="4" y1="18" x2="20" y2="18" />
+                </svg>
+              </button>
+
               {/* Search Bar matching screenshot */}
-              <div style={{ display: "flex", alignItems: "center", width: "100%", maxWidth: "420px" }}>
+              <div className="admin-search-wrap" style={{ display: "flex", alignItems: "center", width: "100%", maxWidth: "420px" }}>
                 <div
                   style={{
                     position: "relative",
@@ -961,7 +1025,7 @@ export default function RootAdminLayout({ children }) {
                 </button>
 
                 {/* Notification Bell with red dot */}
-                <div style={{ position: "relative" }}>
+                <div ref={profileMenuRef} style={{ position: "relative" }}>
                   <button
                     style={{
                       width: "38px",
@@ -1115,7 +1179,7 @@ export default function RootAdminLayout({ children }) {
             </header>
 
             {/* PAGE VIEWPORT */}
-            <main style={{ flex: 1, padding: "28px 32px 48px 32px" }}>
+            <main className="admin-page-content" style={{ flex: 1, padding: "28px 32px 48px 32px" }}>
               {children}
             </main>
           </div>

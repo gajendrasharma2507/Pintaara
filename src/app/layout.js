@@ -5,6 +5,10 @@
 //   Baskerville.ttc    → --font-serif                 (editorial slide titles)
 import { Cinzel, Montserrat, Playfair_Display, Cormorant_Garamond, Libre_Baskerville } from "next/font/google";
 import "./globals.css";
+import "@/styles/header.css";
+import "@/styles/footer.css";
+import "@/styles/product-pricing.css";
+import "@/styles/collection-view.css";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import PasswordGate from "@/components/PasswordGate";

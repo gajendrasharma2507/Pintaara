@@ -31,6 +31,24 @@ const categoryDataMap = {
     bangle: { name: 'BANGLES', watermark: 'PINTAARA HERITAGE', products: [] },
 };
 
+const legacyProductImageFallbacks = {
+    'BR-SG-OR-001': '/images/design-log/BR-SG-OR-001.JPG',
+    'BR-SG-OR-002': '/images/products/piece-01-exact.jpg',
+    'BR-SG-FS-003': '/images/products/piece-02-exact.jpg',
+    'BR-SG-MT-004': '/images/products/bracelet.png',
+};
+
+const resolveProductImage = (product, imageUrl) => {
+    const code = String(product?.design_code || product?.code || '').toUpperCase();
+    const normalizedUrl = typeof imageUrl === 'string' ? imageUrl : '';
+
+    if (normalizedUrl.endsWith('/images/products/bracelet.png') && legacyProductImageFallbacks[code]) {
+        return legacyProductImageFallbacks[code];
+    }
+
+    return normalizedUrl || '/images/products/ring.png';
+};
+
 // 57-Facet Brilliant Cut Gemstone Component (supports custom uploaded image or SVG facet fallback)
 function FacetedGemstone({ type = 'diamond', imageUrl, isSelected, onClick, title }) {
     if (imageUrl) {
@@ -206,7 +224,7 @@ export default function DynamicCollectionPage({ params }) {
     const [selectedSize, setSelectedSize] = useState('12');
     const [selectedChain, setSelectedChain] = useState('Box');
     const [selectedGem, setSelectedGem] = useState('diamond');
-    const [selectedPurity, setSelectedPurity] = useState('18KT');
+    const [selectedPurity, setSelectedPurity] = useState('22KT');
 
     // Dynamic Customization States (Linked to Backend Masters & Product Options)
     const [customizationMasters, setCustomizationMasters] = useState([]);
@@ -216,9 +234,11 @@ export default function DynamicCollectionPage({ params }) {
     const [rates, setRates] = useState(null);
     const [productDetail, setProductDetail] = useState(null);
     const [categoryProducts, setCategoryProducts] = useState([]);
+    const [relatedProducts, setRelatedProducts] = useState([]);
     const [isCatLoaded, setIsCatLoaded] = useState(false);
     const [priceBreakdown, setPriceBreakdown] = useState(null);
     const [showBreakdownModal, setShowBreakdownModal] = useState(false);
+    const [hasCustomized, setHasCustomized] = useState(false);
 
     // Main preview image & thumbnails
     const [activeImgIndex, setActiveImgIndex] = useState(0);
@@ -237,6 +257,8 @@ export default function DynamicCollectionPage({ params }) {
         } catch (e) { }
 
         const fetchMastersAndLiveProduct = async () => {
+            setHasCustomized(false);
+            setPriceBreakdown(null);
             try {
                 const res = await apiFetch('/masters');
                 if (res && res.status === 'success' && Array.isArray(res.data)) {
@@ -300,7 +322,7 @@ export default function DynamicCollectionPage({ params }) {
                             if (!imgUrl && Array.isArray(p.images) && p.images.length > 0) {
                                 imgUrl = typeof p.images[0] === 'string' ? p.images[0] : p.images[0]?.url;
                             }
-                            if (!imgUrl || typeof imgUrl !== 'string') imgUrl = '/images/products/ring.png';
+                            imgUrl = resolveProductImage(p, imgUrl);
 
                             return {
                                 id: p.design_code || p.id,
@@ -308,6 +330,7 @@ export default function DynamicCollectionPage({ params }) {
                                 name: p.name,
                                 collection: p.collection?.name || activeCategory.name,
                                 defaultWeight: p.base_weight_grams || 8.5,
+                                makingCharge: p.making_charge || 0,
                                 image: imgUrl,
                                 livePrice: p.live_price?.total_price || null,
                                 filterStyle: 'none'
@@ -331,6 +354,57 @@ export default function DynamicCollectionPage({ params }) {
                         const prod = resProduct.data || resProduct;
                         if (prod && (prod.id || prod.design_code)) {
                             setProductDetail(prod);
+
+                            const collectionSlug = prod.collection?.slug || prod.collection?.name;
+                            if (collectionSlug) {
+                                try {
+                                    const resRelated = await api.getProducts(`?collection=${encodeURIComponent(collectionSlug)}`);
+                                    if (resRelated?.status === 'success' && Array.isArray(resRelated.data)) {
+                                        const currentCode = String(prod.design_code || prod.code || prod.id).toUpperCase();
+                                        const mapRelatedProduct = (item) => {
+                                                let imageUrl = typeof item.primary_image === 'object' && item.primary_image
+                                                    ? item.primary_image.url
+                                                    : item.primary_image;
+                                                if (!imageUrl && Array.isArray(item.images) && item.images.length > 0) {
+                                                    imageUrl = typeof item.images[0] === 'string' ? item.images[0] : item.images[0]?.url;
+                                                }
+
+                                                return {
+                                                    id: item.design_code || item.id,
+                                                    code: item.design_code || String(item.id),
+                                                    name: item.name,
+                                                    collection: item.collection?.name || prod.collection?.name || 'ATELIER PIECE',
+                                                    image: resolveProductImage(item, imageUrl),
+                                                    livePrice: item.live_price?.total_price || item.base_pricing?.total_price || null,
+                                                };
+                                        };
+
+                                        const sameCollection = resRelated.data
+                                            .filter((item) => String(item.design_code || item.code || item.id).toUpperCase() !== currentCode)
+                                            .map(mapRelatedProduct);
+                                        let related = sameCollection.slice(0, 4);
+
+                                        if (related.length < 4) {
+                                            const resAllProducts = await api.getProducts();
+                                            const sameCodes = new Set(related.map((item) => item.code.toUpperCase()));
+                                            const fallbackProducts = resAllProducts?.status === 'success' && Array.isArray(resAllProducts.data)
+                                                ? resAllProducts.data
+                                                    .filter((item) => {
+                                                        const code = String(item.design_code || item.code || item.id).toUpperCase();
+                                                        return code !== currentCode && !sameCodes.has(code);
+                                                    })
+                                                    .map(mapRelatedProduct)
+                                                : [];
+                                            related = [...related, ...fallbackProducts].slice(0, 4);
+                                        }
+
+                                        setRelatedProducts(related);
+                                    }
+                                } catch (err) {
+                                    console.error('Failed to load related products:', err);
+                                    setRelatedProducts([]);
+                                }
+                            }
                         } else {
                             setProductDetail(null);
                         }
@@ -486,9 +560,9 @@ export default function DynamicCollectionPage({ params }) {
                     const exists = currentSelected && group.values.some((v) => v.value === currentSelected.value);
                     if (!exists && group.values.length > 0) {
                         if (gName.includes('PURITY')) {
-                            const val = group.values.find((v) => v.value.includes('18K')) || group.values[0];
+                            const val = group.values.find((v) => v.value.includes('22K')) || group.values[0];
                             next[gName] = val;
-                            setSelectedPurity(val.value.includes('18K') ? '18KT' : val.value);
+                            setSelectedPurity(val.value.includes('22K') ? '22KT' : val.value);
                         } else if (gName.includes('FINISH')) {
                             const val = group.values.find((v) => v.value.toLowerCase().includes('white')) || group.values[1] || group.values[0];
                             next[gName] = val;
@@ -502,9 +576,12 @@ export default function DynamicCollectionPage({ params }) {
                             next[gName] = val;
                             setSelectedChain(val.value.includes('Box') ? 'Box' : val.value);
                         } else if (gName.includes('GEM') || gName.includes('STONE')) {
-                            const val = group.values.find((v) => v.value.toLowerCase().includes('dia')) || group.values[0];
+                            const val = group.values.find((v) => {
+                                const value = v.value.toLowerCase();
+                                return value.includes('no stone') || value.includes('solid gold') || value === 'none';
+                            }) || group.values[0];
                             next[gName] = val;
-                            setSelectedGem('diamond');
+                            setSelectedGem(val.value.toLowerCase().includes('emerald') ? 'emerald' : val.value.toLowerCase().includes('sapphire') ? 'sapphire' : val.value.toLowerCase().includes('ruby') ? 'ruby' : 'none');
                         } else {
                             next[gName] = group.values[0];
                         }
@@ -516,100 +593,91 @@ export default function DynamicCollectionPage({ params }) {
     }, [activeOptionGroups]);
 
     const handleSelectOption = (groupName, valueObj) => {
+        setHasCustomized(true);
         setSelectedOptions((prev) => ({
             ...prev,
             [groupName]: valueObj,
         }));
     };
 
-    // 2. Compute Live Dynamic Price Breakdown based on Real Live Rates & Selected Customization Options
+    // 2. Use the backend pricing contract so listing and detail MRP stay identical.
     useEffect(() => {
-        if (categoryInfo) return;
+        if (categoryInfo || !productDetail) return;
 
-        // Determine Purity Fraction & Rate
+        if (!hasCustomized && productDetail.base_pricing) {
+            const base = productDetail.base_pricing;
+            setPriceBreakdown({
+                ...base,
+                gst: Number(base.gst_amount || 0),
+                total: Number(base.total_price || 0),
+                option_breakdowns: [],
+                rate_used: {
+                    purity: '22KT',
+                    rate_per_gram: base.rate_per_gram,
+                    rate_per_10g: Number(base.rate_per_gram || 0) * 10,
+                    rate_date: rates?.effective_date || new Date().toISOString().split('T')[0],
+                },
+            });
+            return;
+        }
+
         const purityEntry = Object.entries(selectedOptions).find(([k]) =>
             k.toLowerCase().includes('purity') || k.toLowerCase().includes('metal') || k.toLowerCase().includes('karat')
         );
-        const purityStr = purityEntry ? (purityEntry[1]?.value || '') : (productDetail?.karat || '18KT');
-
-        const baseRate22kt = rates?.gold_22kt_per_10g || 100000;
-        const rate22kt_g = baseRate22kt / 10;
-        const rate24kt_g = rate22kt_g / 0.916;
-
-        let fraction = 0.750;
-        let ratePerG = rate24kt_g * 0.750;
-        let metalType = 'gold';
-
-        if (purityStr.includes('24K')) {
-            fraction = 1.0;
-            ratePerG = rate24kt_g;
-        } else if (purityStr.includes('22K')) {
-            fraction = 0.916;
-            ratePerG = rate22kt_g;
-        } else if (purityStr.includes('18K')) {
-            fraction = 0.750;
-            ratePerG = rate24kt_g * 0.750;
-        } else if (purityStr.includes('14K')) {
-            fraction = 0.585;
-            ratePerG = rate24kt_g * 0.585;
-        } else if (purityStr.includes('PT950') || purityStr.toLowerCase().includes('platinum')) {
-            fraction = 0.950;
-            ratePerG = 3450;
-            metalType = 'platinum';
-        } else if (purityStr.includes('925') || purityStr.toLowerCase().includes('silver')) {
-            fraction = 0.925;
-            ratePerG = (rates?.silver_per_10g || 950) / 10;
-            metalType = 'silver';
-        }
-
-        const weight = parseFloat(productDetail?.base_weight_grams) || 8.5;
-        const metalVal = Math.round(ratePerG * weight);
-        const making = parseFloat(productDetail?.making_charge) || 12500;
-        const wastagePct = parseFloat(productDetail?.wastage_percent) || 0;
-        const wastageVal = Math.round(metalVal * (wastagePct / 100));
-
-        // Aggregate price_delta surcharges from all selected options
-        let extraCharges = 0;
+        const purityStr = purityEntry?.[1]?.value || '22KT';
+        const gemEntry = Object.entries(selectedOptions).find(([k]) =>
+            k.toLowerCase().includes('gem') || k.toLowerCase().includes('stone')
+        );
+        const gemName = gemEntry?.[1]?.value || '';
         const optionBreakdowns = [];
-
+        let optionDelta = 0;
         Object.entries(selectedOptions).forEach(([optName, valObj]) => {
-            if (valObj && valObj.price_delta !== undefined) {
-                const delta = parseFloat(valObj.price_delta) || 0;
-                if (delta !== 0) {
-                    extraCharges += delta;
-                    optionBreakdowns.push({
-                        name: optName,
-                        value: valObj.value,
-                        charge: delta,
-                    });
-                }
+            const lowerName = optName.toLowerCase();
+            const delta = Number(valObj?.price_delta) || 0;
+            if (delta && !lowerName.includes('purity') && !lowerName.includes('metal') &&
+                !lowerName.includes('finish') && !lowerName.includes('size') &&
+                !lowerName.includes('gem') && !lowerName.includes('stone')) {
+                optionDelta += delta;
+                optionBreakdowns.push({ name: optName, value: valObj.value, charge: delta });
             }
         });
 
-        let sub = metalVal + wastageVal + making + extraCharges;
-        let gst = Math.round(sub * 0.03);
-        let total = sub + gst;
-
-        setPriceBreakdown({
-            metal_value: metalVal,
-            wastage: wastageVal,
-            wastage_percent: wastagePct,
-            making_charge: making,
-            stone_charge: extraCharges,
-            stone_type: optionBreakdowns.map((o) => `${o.name}: ${o.value}`).join(', ') || 'Natural Diamond (VVS-VS)',
-            option_breakdowns: optionBreakdowns,
-            subtotal: sub,
-            gst: gst,
-            total: total,
-            weight_grams: weight,
-            rate_used: {
-                purity: purityStr,
-                rate_per_gram: Math.round(ratePerG),
-                rate_per_10g: Math.round(ratePerG * 10),
-                rate_date: rates?.effective_date || new Date().toISOString().split('T')[0],
-            },
-        });
-    }, [selectedOptions, rates, productDetail, categoryInfo]);
+        let cancelled = false;
+        const calculate = async () => {
+            try {
+                const response = await apiFetch('/price/calculate', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        weight_grams: Number(productDetail.base_weight_grams) || 8.5,
+                        purity: purityStr,
+                        making_charge_flat: Number(productDetail.making_charge) || 0,
+                        making_charge_percent: productDetail.making_charge_percent,
+                        wastage_percent: Number(productDetail.wastage_percent) || 0,
+                        gem: gemName,
+                    }),
+                });
+                const data = response?.data;
+                if (!data || cancelled) return;
+                setPriceBreakdown({
+                    ...data,
+                    subtotal: Number(data.subtotal || 0) + optionDelta,
+                    gst: Number(data.gst_amount || 0),
+                    total: Number(data.total_price || 0) + optionDelta,
+                    option_breakdowns: optionBreakdowns,
+                    rate_used: {
+                        purity: purityStr,
+                        rate_per_gram: data.rate_per_gram,
+                        rate_per_10g: Number(data.rate_per_gram || 0) * 10,
+                        rate_date: rates?.effective_date || new Date().toISOString().split('T')[0],
+                    },
+                });
+            } catch (error) {
+                if (!cancelled) console.error('Unable to calculate product price:', error);
+            }
+        };
+        calculate();
+        return () => { cancelled = true; };
+    }, [selectedOptions, rates, productDetail, categoryInfo, hasCustomized]);
 
     // Product Images & Thumbnails matching real product media
     const thumbnails = useMemo(() => {
@@ -626,7 +694,7 @@ export default function DynamicCollectionPage({ params }) {
         if (validImages.length > 0) {
             return validImages.map((imgSrc, idx) => ({
                 id: `real-thumb-${idx}`,
-                src: imgSrc,
+                src: resolveProductImage(productDetail, imgSrc),
                 alt: `${productDetail.name || 'Jewelry Piece'} view ${idx + 1}`,
                 filter: 'none',
                 bgColor: '#F5F5F3'
@@ -634,7 +702,7 @@ export default function DynamicCollectionPage({ params }) {
         }
 
         const fallbackImg = (typeof productDetail.primary_image === 'string' && productDetail.primary_image)
-            ? productDetail.primary_image
+            ? resolveProductImage(productDetail, productDetail.primary_image)
             : '/images/products/ring.png';
         return [
             { id: 't1', src: fallbackImg, alt: productDetail?.name || 'Jewelry Piece', filter: 'none', bgColor: '#CFD9E0' },
@@ -730,7 +798,7 @@ export default function DynamicCollectionPage({ params }) {
                                 // Calculate live price for each item in grid
                                 const rate22kt_g = (rates?.gold_22kt_per_10g || 100000) / 10;
                                 const metalVal = rate22kt_g * item.defaultWeight;
-                                const sub = metalVal + 3000;
+                                const sub = metalVal + Number(item.makingCharge || 0);
                                 const calculatedTotal = Math.round(sub * 1.03);
                                 const total = item.livePrice || calculatedTotal;
 
@@ -828,7 +896,11 @@ export default function DynamicCollectionPage({ params }) {
         );
     }
 
-    const displayPrice = priceBreakdown?.total ? Number(priceBreakdown.total).toLocaleString('en-IN') : (productDetail.live_price?.total_price ? Number(productDetail.live_price.total_price).toLocaleString('en-IN') : '0');
+    const displayPrice = priceBreakdown?.total
+        ? Number(priceBreakdown.total).toLocaleString('en-IN')
+        : (productDetail?.base_pricing?.total_price
+            ? Number(productDetail.base_pricing.total_price).toLocaleString('en-IN')
+            : '0');
 
     return (
         <div className="atelier-page-root">
@@ -1073,6 +1145,7 @@ export default function DynamicCollectionPage({ params }) {
                         <div className="atelier-btn-accent-line" />
                         <div className="atelier-bottom-inner">
                             <div className="atelier-price-block">
+                                <span className="atelier-price-label">MRP · Inclusive of GST</span>
                                 <div className="atelier-price-value">₹ {displayPrice}</div>
                                 <button
                                     type="button"
@@ -1102,6 +1175,41 @@ export default function DynamicCollectionPage({ params }) {
                     </div>
                 </div>
             </main>
+
+            {relatedProducts.length > 0 && (
+                <section className="atelier-related-section" aria-labelledby="related-pieces-title">
+                    <div className="atelier-related-heading">
+                        <span className="atelier-related-kicker">CONTINUE EXPLORING</span>
+                        <h2 id="related-pieces-title">Related Pieces</h2>
+                        <p>Discover more designs from the {productDetail?.collection?.name || 'Pintaara'} collection.</p>
+                    </div>
+
+                    <div className="atelier-related-grid">
+                        {relatedProducts.map((product) => (
+                            <Link
+                                href={`/collection/${product.code}`}
+                                className="atelier-related-card"
+                                key={product.id}
+                            >
+                                <div className="atelier-related-image-frame">
+                                    <img src={product.image} alt={product.name || 'Related Pintaara jewelry'} />
+                                </div>
+                                <div className="atelier-related-card-info">
+                                    <div>
+                                        <span className="atelier-related-collection">{product.collection}</span>
+                                        <h3>{product.name || product.code}</h3>
+                                    </div>
+                                    {product.livePrice && (
+                                        <span className="atelier-related-price">
+                                            MRP ₹ {Number(product.livePrice).toLocaleString('en-IN')}
+                                        </span>
+                                    )}
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            )}
 
             {/* Bottom Footer Bar */}
             <footer className="collection-bottom-bar light-theme">
@@ -1320,13 +1428,13 @@ export default function DynamicCollectionPage({ params }) {
 
                 /* ── MAIN TWO-COLUMN LAYOUT ── */
                 .atelier-main-container {
-                    max-width: 1100px;
+                    max-width: 1200px;
                     width: 100%;
                     margin: 0 auto;
-                    padding: calc(var(--header-height) + 2rem) 40px 2.5rem;
+                    padding: calc(var(--header-height) + clamp(2.5rem, 5vw, 4.5rem)) 40px 4rem;
                     display: grid;
-                    grid-template-columns: 43% 1fr;
-                    gap: 5rem;
+                    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr);
+                    gap: clamp(3rem, 6vw, 5.5rem);
                     align-items: start;
                     flex: 1;
                 }
@@ -1369,11 +1477,14 @@ export default function DynamicCollectionPage({ params }) {
                     width: 100%;
                     aspect-ratio: 1 / 1;
                     background: linear-gradient(135deg, #CFD9E0 0%, #DCE5EA 40%, #EAEEF0 75%, #F0F2F0 100%);
+                    border: 1px solid rgba(44, 40, 37, 0.1);
+                    box-shadow: 0 18px 45px rgba(44, 40, 37, 0.11);
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     overflow: hidden;
                     position: relative;
+                    border-radius: 3px;
                 }
                 .atelier-main-img {
                     width: 100%;
@@ -1430,13 +1541,13 @@ export default function DynamicCollectionPage({ params }) {
 
                 /* Product Title — matches reference: large serif-weight heading */
                 .atelier-product-title {
-                    font-size: 1.85rem;
+                    font-size: clamp(2rem, 3vw, 2.8rem);
                     font-weight: 400;
-                    letter-spacing: 0.04em;
+                    letter-spacing: -0.015em;
                     color: #1A1A1A;
                     margin: 0 0 0.1rem 0;
                     line-height: 1.2;
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                    font-family: var(--font-serif), Georgia, serif;
                 }
 
                 /* ORIGIN subtitle */
@@ -1453,15 +1564,15 @@ export default function DynamicCollectionPage({ params }) {
                 .atelier-specs-divider {
                     width: 100%;
                     height: 1px;
-                    background-color: #1A1A1A;
-                    margin-bottom: 1.1rem;
+                    background-color: rgba(26, 26, 26, 0.25);
+                    margin-bottom: 1.35rem;
                 }
 
                 /* Each control section */
                 .atelier-control-group {
                     display: flex;
                     flex-direction: column;
-                    margin-bottom: 0.9rem;
+                    margin-bottom: 1.15rem;
                 }
 
                 /* Section label — METAL PURITY (KT), FINISH OPTION, etc. */
@@ -1614,8 +1725,8 @@ export default function DynamicCollectionPage({ params }) {
                     display: flex;
                     flex-direction: column;
                     width: 100%;
-                    margin-top: 1.25rem;
-                    padding-top: 0;
+                    margin-top: 1.5rem;
+                    padding-top: 0.1rem;
                 }
                 .atelier-btn-accent-line {
                     width: 100%;
@@ -1634,7 +1745,7 @@ export default function DynamicCollectionPage({ params }) {
                     flex-direction: column;
                 }
                 .atelier-price-value {
-                    font-size: 1.6rem;
+                    font-size: 1.9rem;
                     font-weight: 400;
                     color: #1A1A1A;
                     letter-spacing: 0.01em;
@@ -1714,6 +1825,24 @@ export default function DynamicCollectionPage({ params }) {
                         grid-template-columns: 1fr;
                         padding: calc(var(--header-height) + 1.25rem) 16px 1.5rem;
                         gap: 1.5rem;
+                    }
+                    .atelier-main-preview-box {
+                        border-radius: 2px;
+                        box-shadow: 0 12px 28px rgba(44, 40, 37, 0.1);
+                    }
+                    .atelier-product-title {
+                        font-size: 1.8rem;
+                    }
+                    .atelier-bottom-inner {
+                        align-items: stretch;
+                        flex-direction: column;
+                        gap: 1rem;
+                    }
+                    .atelier-buttons-block {
+                        width: 100%;
+                    }
+                    .atelier-price-value {
+                        font-size: 1.7rem;
                     }
                     .atelier-header {
                         padding: 1rem 16px;

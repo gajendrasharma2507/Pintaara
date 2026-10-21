@@ -42,7 +42,8 @@
 
 @font-face {
     font-family: 'Baskerville-Bold';
-    src: url('/fonts/Baskerville-Bold.ttf') format('truetype');
+    src: url('/fonts/Baskerville-Bold.woff') format('woff'),
+         url('/fonts/Baskerville-Bold.ttf') format('truetype');
     font-weight: 400 900;
     font-style: normal;
     font-display: swap;
@@ -50,7 +51,8 @@
 
 @font-face {
     font-family: 'Baskerville';
-    src: url('/fonts/Baskerville-Bold.ttf') format('truetype');
+    src: url('/fonts/Baskerville-Bold.woff') format('woff'),
+         url('/fonts/Baskerville-Bold.ttf') format('truetype');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
@@ -58,7 +60,8 @@
 
 @font-face {
     font-family: 'Baskerville';
-    src: url('/fonts/Baskerville-Regular.ttf') format('truetype');
+    src: url('/fonts/Baskerville-Regular.woff') format('woff'),
+         url('/fonts/Baskerville-Regular.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
